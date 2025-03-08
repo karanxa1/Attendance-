@@ -1,130 +1,99 @@
-// attendance-frontend/src/components/AttendanceForm.js
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import { useForm } from 'react-hook-form';
 import { useAuth } from '../context/AuthContext';
+import { api } from '../utils/api';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import styles from './AttendanceForm.module.css';
 
 const AttendanceForm = () => {
   const { user } = useAuth();
   const [classes, setClasses] = useState([]);
   const [students, setStudents] = useState([]);
-  const [selectedClass, setSelectedClass] = useState('');
   const [attendance, setAttendance] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [success, setSuccess] = useState(false);
-  const [error, setError] = useState(null);
+  const { register, handleSubmit, watch, setValue } = useForm();
+  const selectedClass = watch('classId');
 
-  // Fetch classes
   useEffect(() => {
     const fetchClasses = async () => {
       try {
-        const token = localStorage.getItem('token');
-        const res = await axios.get('/api/attendance/classes', {
-          headers: { Authorization: `Bearer ${token}` }
-        });
+        const res = await api.get('/api/attendance/classes');
         setClasses(res.data);
-      } catch (err) {
-        setError('Failed to load classes');
+      } catch {
+        toast.error('Failed to load classes');
       }
     };
-
     fetchClasses();
   }, []);
 
-  // Fetch students when class is selected
   useEffect(() => {
     if (!selectedClass) return;
-    
+
     const fetchStudents = async () => {
       try {
-        const token = localStorage.getItem('token');
-        const res = await axios.get(`/api/attendance/students/${selectedClass}`, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-        
-        // Initialize attendance array with students
+        const res = await api.get(`/api/attendance/students/${selectedClass}`);
         const initialAttendance = res.data.map(student => ({
           studentId: student.id,
           studentName: student.name,
-          status: 'Present' // Default status
+          status: 'Present',
         }));
-        
         setStudents(res.data);
         setAttendance(initialAttendance);
-      } catch (err) {
-        setError('Failed to load students');
+      } catch {
+        toast.error('Failed to load students');
       }
     };
-
     fetchStudents();
   }, [selectedClass]);
 
-  const handleClassChange = (e) => {
-    setSelectedClass(e.target.value);
-  };
-
   const handleStatusChange = (studentId, status) => {
-    setAttendance(prev => prev.map(item => 
-      item.studentId === studentId ? { ...item, status } : item
-    ));
+    setAttendance(prev =>
+      prev.map(item => (item.studentId === studentId ? { ...item, status } : item))
+    );
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    setError(null);
-    setSuccess(false);
-    
+  const onSubmit = async data => {
     try {
-      const token = localStorage.getItem('token');
-      await axios.post('/api/attendance/mark', {
-        classId: selectedClass,
+      await api.post('/api/attendance/mark', {
+        classId: data.classId,
         date: new Date().toISOString().split('T')[0],
         teacher: user.name,
-        attendance
-      }, {
-        headers: { Authorization: `Bearer ${token}` }
+        attendance,
       });
-      
-      setSuccess(true);
-      // Reset form
-      setSelectedClass('');
+      toast.success('Attendance marked successfully!');
+      setValue('classId', '');
       setStudents([]);
       setAttendance([]);
-    } catch (err) {
-      setError('Failed to submit attendance. Please try again.');
-    } finally {
-      setLoading(false);
+    } catch {
+      toast.error('Failed to submit attendance');
     }
   };
 
   return (
-    <div className="attendance-form">
+    <div className={styles.attendanceForm}>
       <h2>Mark Attendance</h2>
-      
-      {error && <div className="error-message">{error}</div>}
-      {success && <div className="success-message">Attendance marked successfully!</div>}
-      
-      <form onSubmit={handleSubmit}>
-        <div className="form-group">
-          <label htmlFor="class">Select Class:</label>
-          <select 
-            id="class" 
-            value={selectedClass} 
-            onChange={handleClassChange}
-            required
+      <form onSubmit={handleSubmit(onSubmit)}>
+        <div className={styles.formGroup}>
+          <label htmlFor="classId">Select Class:</label>
+          <select
+            id="classId"
+            {...register('classId', { required: true })}
+            aria-required="true"
           >
             <option value="">-- Select Class --</option>
             {classes.map(cls => (
-              <option key={cls.id} value={cls.id}>{cls.name}</option>
+              <option key={cls.id} value={cls.id}>
+                {cls.name}
+              </option>
             ))}
           </select>
         </div>
-        
+
         {students.length > 0 && (
           <>
-            <div className="students-list">
+            <div className={styles.studentsList}>
               <h3>Students</h3>
-              <table className="attendance-table">
+              <table className={styles.attendanceTable} role="grid">
                 <thead>
                   <tr>
                     <th>Name</th>
@@ -136,9 +105,12 @@ const AttendanceForm = () => {
                     <tr key={student.id}>
                       <td>{student.name}</td>
                       <td>
-                        <select 
-                          value={attendance.find(a => a.studentId === student.id)?.status || 'Present'}
-                          onChange={(e) => handleStatusChange(student.id, e.target.value)}
+                        <select
+                          value={
+                            attendance.find(a => a.studentId === student.id)?.status || 'Present'
+                          }
+                          onChange={e => handleStatusChange(student.id, e.target.value)}
+                          aria-label={`Attendance status for ${student.name}`}
                         >
                           <option value="Present">Present</option>
                           <option value="Absent">Absent</option>
@@ -150,17 +122,13 @@ const AttendanceForm = () => {
                 </tbody>
               </table>
             </div>
-            
-            <button 
-              type="submit" 
-              className="submit-btn" 
-              disabled={loading}
-            >
-              {loading ? 'Submitting...' : 'Submit Attendance'}
+            <button type="submit" className={styles.submitBtn}>
+              Submit Attendance
             </button>
           </>
         )}
       </form>
+      <ToastContainer />
     </div>
   );
 };

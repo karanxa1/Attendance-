@@ -1,0 +1,68 @@
+.recordsPage {
+  padding: 1rem;
+}
+
+.filtersSection {
+  margin-bottom: 2rem;
+}
+
+.filtersContainer {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
+.filterGroup label {
+  display: block;
+  margin-bottom: 0.5rem;
+}
+
+.filterGroup select,
+.filterGroup input {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid var(--gray-light);
+  border-radius: var(--border-radius);
+}
+
+.exportBtn {
+  background: var(--success);
+  color: white;
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: var(--border-radius);
+  cursor: pointer;
+}
+
+.recordsContainer {
+  background: white;
+  border-radius: var(--border-radius);
+  box-shadow: var(--box-shadow);
+  padding: 1rem;
+}
+
+.recordsTable {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.recordsTable th,
+.recordsTable td {
+  padding: 0.75rem;
+  border-bottom: 1px solid var(--gray-light);
+}
+
+.status.present {
+  background-color: rgba(46, 204, 113, 0.2);
+  color: var(--success);
+}
+
+.status.absent {
+  background-color: rgba(231, 76, 60, 0.2);
+  color: var(--danger);
+}
+
+.status.late {
+  background-color: rgba(243, 156, 18, 0.2);
+  color: var(--warning);
+}

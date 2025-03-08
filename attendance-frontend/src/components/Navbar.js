@@ -1,15 +1,16 @@
 // attendance-frontend/src/components/Navbar.js
 import React from 'react';
-import { Link, useHistory } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom'; // Updated import
 import { useAuth } from '../context/AuthContext';
+import './Navbar.css'; // Added CSS import
 
 const Navbar = () => {
   const { isAuthenticated, user, logout } = useAuth();
-  const history = useHistory();
+  const navigate = useNavigate(); // Updated from useHistory
 
   const handleLogout = () => {
     logout();
-    history.push('/login');
+    navigate('/login'); // Updated from history.push
   };
 
   return (

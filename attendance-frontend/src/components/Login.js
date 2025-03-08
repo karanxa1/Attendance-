@@ -1,6 +1,6 @@
-// attendance-frontend/src/pages/Login.js
+// attendance-frontend/src/components/Login.js - Fixed path
 import React, { useState } from 'react';
-import { useHistory, Redirect } from 'react-router-dom';
+import { useNavigate, Navigate } from 'react-router-dom'; // Updated imports
 import { useAuth } from '../context/AuthContext';
 
 const Login = () => {
@@ -12,11 +12,11 @@ const Login = () => {
   const [loading, setLoading] = useState(false);
   
   const { login, isAuthenticated } = useAuth();
-  const history = useHistory();
+  const navigate = useNavigate(); // Updated from useHistory
   
   // Redirect if already logged in
   if (isAuthenticated) {
-    return <Redirect to="/dashboard" />;
+    return <Navigate to="/dashboard" />; // Updated from Redirect component
   }
   
   const { email, password } = formData;
@@ -33,7 +33,7 @@ const Login = () => {
     try {
       const success = await login(formData);
       if (success) {
-        history.push('/dashboard');
+        navigate('/dashboard'); // Updated from history.push
       } else {
         setError('Invalid credentials');
       }

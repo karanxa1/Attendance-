@@ -1,0 +1,46 @@
+.attendanceForm {
+    padding: 1rem;
+    background: white;
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+  }
+  
+  .formGroup {
+    margin-bottom: 1rem;
+  }
+  
+  .formGroup label {
+    display: block;
+    margin-bottom: 0.5rem;
+  }
+  
+  .formGroup select {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid var(--gray-light);
+    border-radius: var(--border-radius);
+  }
+  
+  .studentsList {
+    margin-top: 1rem;
+  }
+  
+  .attendanceTable {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  
+  .attendanceTable th,
+  .attendanceTable td {
+    padding: 0.75rem;
+    border-bottom: 1px solid var(--gray-light);
+  }
+  
+  .submitBtn {
+    background: var(--primary);
+    color: white;
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: var(--border-radius);
+    cursor: pointer;
+  }

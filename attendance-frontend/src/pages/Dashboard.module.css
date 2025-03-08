@@ -1,0 +1,48 @@
+.dashboardPage {
+    padding: 1rem;
+  }
+  
+  .welcomeMessage {
+    margin-bottom: 2rem;
+  }
+  
+  .dashboardStats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2rem;
+  }
+  
+  .statCard {
+    background: white;
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+    padding: 1rem;
+    text-align: center;
+  }
+  
+  .statNumber {
+    font-size: 2rem;
+    color: var(--primary);
+  }
+  
+  .recentActivity {
+    background: white;
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+    padding: 1rem;
+  }
+  
+  .activityList {
+    list-style: none;
+  }
+  
+  .activityItem {
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--gray-light);
+  }
+  
+  .activityDate {
+    font-weight: 600;
+    margin-right: 1rem;
+  }

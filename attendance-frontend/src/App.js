@@ -1,34 +1,27 @@
 // attendance-frontend/src/App.js
 import React from 'react';
-import { BrowserRouter as Router, Switch, Route, Redirect } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { useAuth } from './context/AuthContext';
 import Navbar from './components/Navbar';
 import Home from './pages/Home';
-import Login from './pages/Login';
-import Dashboard from './pages/Dashboard';
-import Records from './pages/Records';
+import Login from './components/Login'; // Path fixed
+import Dashboard from './components/Dashboard'; // Path fixed
+import Records from './components/Records'; // Path fixed
 import './App.css';
 
 // Protected route component
-const ProtectedRoute = ({ component: Component, allowedRoles, ...rest }) => {
+const ProtectedRoute = ({ children, allowedRoles }) => {
   const { isAuthenticated, user } = useAuth();
   
-  return (
-    <Route
-      {...rest}
-      render={(props) => {
-        if (!isAuthenticated) {
-          return <Redirect to="/login" />;
-        }
-        
-        if (allowedRoles && !allowedRoles.includes(user.role)) {
-          return <Redirect to="/dashboard" />;
-        }
-        
-        return <Component {...props} />;
-      }}
-    />
-  );
+  if (!isAuthenticated) {
+    return <Navigate to="/login" />;
+  }
+  
+  if (allowedRoles && !allowedRoles.includes(user.role)) {
+    return <Navigate to="/dashboard" />;
+  }
+  
+  return children;
 };
 
 function App() {
@@ -37,17 +30,27 @@ function App() {
       <div className="app">
         <Navbar />
         <main className="content">
-          <Switch>
-            <Route exact path="/" component={Home} />
-            <Route path="/login" component={Login} />
-            <ProtectedRoute path="/dashboard" component={Dashboard} />
-            <ProtectedRoute 
-              path="/records" 
-              component={Records} 
-              allowedRoles={['admin']} 
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/login" element={<Login />} />
+            <Route 
+              path="/dashboard" 
+              element={
+                <ProtectedRoute>
+                  <Dashboard />
+                </ProtectedRoute>
+              } 
             />
-            <Redirect to="/" />
-          </Switch>
+            <Route 
+              path="/records" 
+              element={
+                <ProtectedRoute allowedRoles={['admin']}>
+                  <Records />
+                </ProtectedRoute>
+              } 
+            />
+            <Route path="*" element={<Navigate to="/" />} />
+          </Routes>
         </main>
       </div>
     </Router>
