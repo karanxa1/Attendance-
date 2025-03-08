@@ -1,0 +1,4 @@
+# Ignore sensitive files
+service-account.json
+.env
+node_modules/
