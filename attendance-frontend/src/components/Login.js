@@ -1,85 +1,73 @@
-// attendance-frontend/src/components/Login.js - Fixed path
+// src/pages/Login.js
 import React, { useState } from 'react';
-import { useNavigate, Navigate } from 'react-router-dom'; // Updated imports
+import { useHistory, Redirect } from 'react-router-dom';
+import { useForm } from 'react-hook-form';
 import { useAuth } from '../context/AuthContext';
+import { ToastContainer, toast } from 'react-toastify';
 
 const Login = () => {
-  const [formData, setFormData] = useState({
-    email: '',
-    password: ''
-  });
-  const [error, setError] = useState(null);
-  const [loading, setLoading] = useState(false);
-  
   const { login, isAuthenticated } = useAuth();
-  const navigate = useNavigate(); // Updated from useHistory
-  
-  // Redirect if already logged in
-  if (isAuthenticated) {
-    return <Navigate to="/dashboard" />; // Updated from Redirect component
-  }
-  
-  const { email, password } = formData;
-  
-  const onChange = e => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
-  
-  const onSubmit = async e => {
-    e.preventDefault();
-    setError(null);
-    setLoading(true);
-    
+  const history = useHistory();
+  const { register, handleSubmit, formState: { errors } } = useForm();
+  const [showPassword, setShowPassword] = useState(false);
+
+  if (isAuthenticated) return <Redirect to="/dashboard" />;
+
+  const onSubmit = async data => {
     try {
-      const success = await login(formData);
+      const success = await login(data);
       if (success) {
-        navigate('/dashboard'); // Updated from history.push
+        history.push('/dashboard');
       } else {
-        setError('Invalid credentials');
+        toast.error('Invalid credentials');
       }
-    } catch (err) {
-      setError('Login failed. Please try again.');
-    } finally {
-      setLoading(false);
+    } catch {
+      toast.error('Login failed. Please try again.');
     }
   };
-  
+
   return (
     <div className="login-page">
       <div className="login-form-container">
         <h2>Login</h2>
-        {error && <div className="error-message">{error}</div>}
-        
-        <form onSubmit={onSubmit}>
+        <form onSubmit={handleSubmit(onSubmit)}>
           <div className="form-group">
             <label htmlFor="email">Email</label>
             <input
               type="email"
-              name="email"
               id="email"
-              value={email}
-              onChange={onChange}
-              required
+              {...register('email', { required: 'Email is required' })}
+              aria-invalid={errors.email ? 'true' : 'false'}
             />
+            {errors.email && <span className="error">{errors.email.message}</span>}
           </div>
-          
+
           <div className="form-group">
             <label htmlFor="password">Password</label>
-            <input
-              type="password"
-              name="password"
-              id="password"
-              value={password}
-              onChange={onChange}
-              required
-            />
+            <div style={{ position: 'relative' }}>
+              <input
+                type={showPassword ? 'text' : 'password'}
+                id="password"
+                {...register('password', { required: 'Password is required' })}
+                aria-invalid={errors.password ? 'true' : 'false'}
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(prev => !prev)}
+                style={{ position: 'absolute', right: '10px', top: '50%', transform: 'translateY(-50%)' }}
+              >
+                {showPassword ? 'Hide' : 'Show'}
+              </button>
+            </div>
+            {errors.password && <span className="error">{errors.password.message}</span>}
           </div>
-          
-          <button type="submit" className="login-btn" disabled={loading}>
-            {loading ? 'Logging in...' : 'Login'}
+
+          <button type="submit" className="login-btn">
+            Login
           </button>
         </form>
       </div>
+      <ToastContainer />
     </div>
   );
 };
